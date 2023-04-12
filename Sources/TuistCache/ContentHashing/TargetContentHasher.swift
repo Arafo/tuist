@@ -81,20 +81,34 @@ public final class TargetContentHasher: TargetContentHashing {
         hashedPaths: inout [AbsolutePath: String],
         additionalStrings: [String] = []
     ) throws -> String {
+        
+        print("---- \(graphTarget.target.name) ----")
+        print("---- \(graphTarget.target.platform.rawValue) ----")
+        print("---- \(graphTarget.target.product.rawValue) ----")
+        print("---- \(graphTarget.target.bundleId) ----")
+        print("---- \(graphTarget.target.productName) ----")
+        
         let sourcesHash = try sourceFilesContentHasher.hash(sources: graphTarget.target.sources)
+        print("--- sourcesHash \(sourcesHash)")
         let resourcesHash = try resourcesContentHasher.hash(resources: graphTarget.target.resources)
+        print("--- resourcesHash \(resourcesHash)")
         let copyFilesHash = try copyFilesContentHasher.hash(copyFiles: graphTarget.target.copyFiles)
+        print("--- copyFilesHash \(copyFilesHash)")
         let coreDataModelHash = try coreDataModelsContentHasher.hash(coreDataModels: graphTarget.target.coreDataModels)
+        print("--- coreDataModelHash \(coreDataModelHash)")
         let targetScriptsHash = try targetScriptsContentHasher.hash(
             targetScripts: graphTarget.target.scripts,
             sourceRootPath: graphTarget.project.sourceRootPath
         )
+        print("--- targetScriptsHash \(targetScriptsHash)")
         let dependenciesHash = try dependenciesContentHasher.hash(
             graphTarget: graphTarget,
             hashedTargets: &hashedTargets,
             hashedPaths: &hashedPaths
         )
+        print("--- dependenciesHash \(dependenciesHash)")
         let environmentHash = try contentHasher.hash(graphTarget.target.environment)
+        print("--- environmentHash \(environmentHash)")
         var stringsToHash = [
             graphTarget.target.name,
             graphTarget.target.platform.rawValue,
@@ -112,25 +126,32 @@ public final class TargetContentHasher: TargetContentHashing {
         if let headers = graphTarget.target.headers {
             let headersHash = try headersContentHasher.hash(headers: headers)
             stringsToHash.append(headersHash)
+            print("--- headersHash \(headersHash)")
         }
         if let deploymentTarget = graphTarget.target.deploymentTarget {
             let deploymentTargetHash = try deploymentTargetContentHasher.hash(deploymentTarget: deploymentTarget)
             stringsToHash.append(deploymentTargetHash)
+            print("--- deploymentTargetHash \(deploymentTargetHash)")
         }
         if let infoPlist = graphTarget.target.infoPlist {
             let infoPlistHash = try infoPlistContentHasher.hash(plist: infoPlist)
             stringsToHash.append(infoPlistHash)
+            print("--- infoPlistHash \(infoPlistHash)")
         }
         if let entitlements = graphTarget.target.entitlements {
             let entitlementsHash = try contentHasher.hash(path: entitlements)
             stringsToHash.append(entitlementsHash)
+            print("--- entitlementsHash \(entitlementsHash)")
         }
         if let settings = graphTarget.target.settings {
             let settingsHash = try settingsContentHasher.hash(settings: settings)
             stringsToHash.append(settingsHash)
+            print("--- settingsHash \(settingsHash)")
         }
         stringsToHash += additionalStrings
 
-        return try contentHasher.hash(stringsToHash)
+        let finalHash = try contentHasher.hash(stringsToHash)
+        print("--- finalHash \(finalHash)")
+        return finalHash
     }
 }
