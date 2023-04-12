@@ -83,6 +83,8 @@ public final class DependenciesContentHasher: DependenciesContentHashing {
                     dependencyTargetName: targetName
                 )
             }
+            print("----- Hashing target \(targetName)")
+            print("----- Hash: \(dependencyHash)")
             return dependencyHash
         case let .project(targetName, projectPath):
             guard let dependencyHash = hashedTargets[GraphHashedTarget(projectPath: projectPath, targetName: targetName)] else {
@@ -93,10 +95,16 @@ public final class DependenciesContentHasher: DependenciesContentHashing {
                     dependencyTargetName: targetName
                 )
             }
+            print("----- Hashing project \(targetName)")
+            print("----- Hash: \(dependencyHash)")
             return dependencyHash
         case let .framework(path), let .xcframework(path):
-            return try cachedHash(path: path, hashedPaths: &hashedPaths)
+            let hash = try cachedHash(path: path, hashedPaths: &hashedPaths)
+            print("----- Hashing framework \(path)")
+            print("----- Hash: \(hash)")
+            return hash
         case let .library(path, publicHeaders, swiftModuleMap):
+            print("----- Hashing library \(path)")
             let libraryHash = try cachedHash(path: path, hashedPaths: &hashedPaths)
             let publicHeadersHash = try contentHasher.hash(path: publicHeaders)
             if let swiftModuleMap = swiftModuleMap {
@@ -106,10 +114,13 @@ public final class DependenciesContentHasher: DependenciesContentHashing {
                 return try contentHasher.hash("library-\(libraryHash)-\(publicHeadersHash)")
             }
         case let .package(product):
+            print("----- Hashing package")
             return try contentHasher.hash("package-\(product)")
         case let .sdk(name, status):
+            print("----- Hashing sdk")
             return try contentHasher.hash("sdk-\(name)-\(status)")
         case .xctest:
+            print("----- Hashing xctest")
             return try contentHasher.hash("xctest")
         }
     }
